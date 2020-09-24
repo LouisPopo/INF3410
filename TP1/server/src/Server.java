@@ -1,4 +1,5 @@
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
@@ -58,13 +59,15 @@ public class Server {
 				
 				System.out.println("Processed image");
 				
+				File outputfile = new File("/Users/louispopovic/Documents/Poly/A2020/INF3410/INF3410/TP1/image.jpg");
+	            ImageIO.write(processImg, "jpg", outputfile);
 				
 				// re-send BufferedImage
 				
-				ImageIO.write(processImg,"JPG",socket.getOutputStream());
+				//ImageIO.write(img,"JPG",socket.getOutputStream());
+				//System.out.println("Image sended");
+		
 				
-				
-				System.out.println("Send image");
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();

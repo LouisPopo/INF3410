@@ -24,10 +24,10 @@ public class Client {
             
             Robot bot;
             bot = new Robot();
-            bimg = bot.createScreenCapture(new Rectangle(0, 0, 200, 100));
+            bimg = bot.createScreenCapture(new Rectangle(0, 0, 500, 500));
             
-            File initfile = new File("/Users/louispopovic/Documents/Poly/A2020/INF3410/INF3410/mi.jpg");
-            ImageIO.write(bimg, "jpg", initfile);
+            //File initfile = new File("/Users/louispopovic/Documents/Poly/A2020/INF3410/INF3410/mi.jpg");
+            //ImageIO.write(bimg, "jpg", initfile);
             
             /*final float FACTOR  = 4f;
             BufferedImage img = ImageIO.read(new File("/Users/louispopovic/Documents/Poly/A2020/INF3410/INF3410/TP1/client/mi.png"));
@@ -40,20 +40,20 @@ public class Client {
             System.out.println("created image");
             
             ImageIO.write(bimg,"JPG",socket.getOutputStream());
-            
+            socket.close();
             
             // wait for answer
             
-            BufferedImage returned_img = ImageIO.read(ImageIO.createImageInputStream(socket.getInputStream()));
+            //BufferedImage returned_img = ImageIO.read(ImageIO.createImageInputStream(socket.getInputStream()));
             
-            File outputfile = new File("/Users/louispopovic/Documents/Poly/A2020/INF3410/INF3410/image.jpg");
-            ImageIO.write(returned_img, "jpg", outputfile);
+            //File outputfile = new File("/Users/louispopovic/Documents/Poly/A2020/INF3410/INF3410/TP1/image.jpg");
+            //ImageIO.write(returned_img, "jpg", outputfile);
             
             System.out.println("Saved image");
             
             
             
-            socket.close();
+            //socket.close();
             /*var scanner = new Scanner(System.in);
             var in = new Scanner(socket.getInputStream());
             var out = new PrintWriter(socket.getOutputStream(), true);
