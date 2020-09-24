@@ -1,7 +1,13 @@
 import java.awt.image.BufferedImage;
+<<<<<<< HEAD
 import java.io.DataInputStream;
+=======
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+>>>>>>> e8bc77a927f7a1d8ac850ead6936d9da1e12d8ba
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -25,6 +31,7 @@ public class Server {
      * the number of threads via a thread pool (otherwise millions of clients could
      * cause the server to run out of resources by allocating too many threads).
      */
+	
     public static void main(String[] args) throws Exception {
         try (var listener = new ServerSocket(59898)) {
             System.out.println("The capitalization server is running...");
@@ -40,6 +47,29 @@ public class Server {
         
         private Sobel sobel = new Sobel(); 
         
+        public static byte[] jpegToByte(String pathJpeg) throws IOException {
+    		BufferedImage image = null;
+    		byte[] byteImage;
+            image = ImageIO.read(new File(pathJpeg));
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    		ImageIO.write(image, "jpg", baos);
+    		baos.flush();
+    		byteImage = baos.toByteArray();
+    		baos.close();
+    		return byteImage;
+    	}
+        
+        public static BufferedImage byteToBufferedImg(byte[] inputByteArray) {
+			
+        	try	{
+        		InputStream in = new ByteArrayInputStream(inputByteArray);
+        		return ImageIO.read(in);
+        		
+        	}       	
+        	catch(IOException e) {
+        		throw new RuntimeException("Image conversion failed");
+        	}        	
+        }
         
         
         
@@ -65,6 +95,7 @@ public class Server {
 				// convert to bufferedImage
 				
 				// process image
+
 				
 				// re-convert to byte[]
 				
