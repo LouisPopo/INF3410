@@ -1,10 +1,7 @@
 import java.awt.image.BufferedImage;
-<<<<<<< HEAD
 import java.io.DataInputStream;
-=======
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
->>>>>>> e8bc77a927f7a1d8ac850ead6936d9da1e12d8ba
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -88,18 +85,23 @@ public class Server {
 				if (length > 0) {
 					byte[] message = new byte[length];
 					dIn.readFully(message, 0, message.length);
+					
+					BufferedImage buffImg = this.byteToBufferedImg(message);
+					
+					// convert to bufferedImage
+					
+					// process image
+					BufferedImage processedImg = this.sobel.process(buffImg);
+
+					
+					// re-convert to byte[]
+					
+					// send byte[]
 				}
 				
-				// message contient limage en bytearray
 				
-				// convert to bufferedImage
 				
-				// process image
-
 				
-				// re-convert to byte[]
-				
-				// send byte[]
 		
 				
 			} catch (IOException e1) {

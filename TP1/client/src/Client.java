@@ -20,9 +20,7 @@ import java.awt.image.BufferedImage;
 
 public class Client {
 	
-<<<<<<< HEAD
-=======
-	public static byte[] jpegToByte(String pathJpeg) throws IOException {
+	public byte[] jpegToByte(String pathJpeg) throws IOException {
 		BufferedImage image = null;
 		byte[] byteImage;
         image = ImageIO.read(new File(pathJpeg));
@@ -48,24 +46,19 @@ public class Client {
 	
 	
 
-    public static void main(String[] args) throws Exception {
+    public void main(String[] args) throws Exception {
         
-    	Image newimg;
-        BufferedImage bimg;
-        byte[] bytes;
     	
         try (var socket = new Socket("localhost", 59898)) {
             
 
         	// get image in byte 
-        	
-        	byte[] message = null;
-        	int messageLength = 10;
-        	
+        	byte[] image = this.jpegToByte("/Users/louispopovic/Documents/Poly/A2020/INF3410/INF3410/TP1/test.jpg");
+        
         	DataOutputStream dOut = new DataOutputStream(socket.getOutputStream());
         	
-        	dOut.writeInt(messageLength);
-        	dOut.write(message);
+        	dOut.writeInt(image.length);
+        	dOut.write(image);
         	
         	// should now wait for image to return in byte[]
         	
