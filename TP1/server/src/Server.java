@@ -1,6 +1,8 @@
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -24,6 +26,7 @@ public class Server {
      * the number of threads via a thread pool (otherwise millions of clients could
      * cause the server to run out of resources by allocating too many threads).
      */
+	
     public static void main(String[] args) throws Exception {
         try (var listener = new ServerSocket(59898)) {
             System.out.println("The capitalization server is running...");
@@ -39,6 +42,18 @@ public class Server {
         
         private Sobel sobel = new Sobel(); 
         
+        public static BufferedImage byteToBufferedImg(byte[] inputByteArray) {
+			
+        	try	{
+        		InputStream in = new ByteArrayInputStream(inputByteArray);
+        		return ImageIO.read(in);
+        		
+        	}       	
+        	catch(IOException e) {
+        		throw new RuntimeException("Image conversion failed");
+        	}        	
+        	
+        }
         
         
         
@@ -59,7 +74,7 @@ public class Server {
 				
 				System.out.println("Processed image");
 				
-				File outputfile = new File("/Users/louispopovic/Documents/Poly/A2020/INF3410/INF3410/TP1/image.jpg");
+				File outputfile = new File("C:\\Users\\Michael\\Desktop\\Reseaux\\INF3410\\TP1\\img.jpg");
 	            ImageIO.write(processImg, "jpg", outputfile);
 				
 				// re-send BufferedImage
