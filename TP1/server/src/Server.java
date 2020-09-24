@@ -1,9 +1,12 @@
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Scanner;
 import java.util.concurrent.Executors;
+
+import javax.imageio.ImageIO;
 
 /**
  * A server program which accepts requests from clients to capitalize strings.
@@ -32,7 +35,12 @@ public class Server {
 
     private static class Capitalizer implements Runnable {
         private Socket socket;
-
+        
+        private Sobel sobel = new Sobel(); 
+        
+        
+        
+        
         Capitalizer(Socket socket) {
             this.socket = socket;
         }
@@ -40,7 +48,30 @@ public class Server {
         @Override
         public void run() {
             System.out.println("Connected: " + socket);
+            
             try {
+				BufferedImage img = ImageIO.read(ImageIO.createImageInputStream(this.socket.getInputStream()));
+				
+				System.out.println("Received image");
+				
+				BufferedImage processImg = this.sobel.process(img);
+				
+				System.out.println("Processed image");
+				
+				
+				// re-send BufferedImage
+				
+				ImageIO.write(processImg,"JPG",socket.getOutputStream());
+				
+				
+				System.out.println("Send image");
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+            
+            
+            /*try {
                 var in = new Scanner(socket.getInputStream());
                 var out = new PrintWriter(socket.getOutputStream(), true);
                 while (in.hasNextLine()) {
@@ -54,7 +85,7 @@ public class Server {
                 } catch (IOException e) {
                 }
                 System.out.println("Closed: " + socket);
-            }
+            }*/ 
         }
     }
 }
