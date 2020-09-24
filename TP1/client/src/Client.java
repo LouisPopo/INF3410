@@ -1,4 +1,5 @@
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -20,7 +21,7 @@ import java.awt.image.BufferedImage;
 
 public class Client {
 	
-	public byte[] jpegToByte(String pathJpeg) throws IOException {
+	public static byte[] jpegToByte(String pathJpeg) throws IOException {
 		BufferedImage image = null;
 		byte[] byteImage;
         image = ImageIO.read(new File(pathJpeg));
@@ -49,14 +50,14 @@ public class Client {
 	
 	
 
-    public void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception {
         
     	
         try (var socket = new Socket("localhost", 59898)) {
             
 
         	// get image in byte 
-        	byte[] image = this.jpegToByte("/Users/louispopovic/Documents/Poly/A2020/INF3410/INF3410/TP1/test.jpg");
+        	byte[] image = jpegToByte("/Users/louispopovic/Documents/Poly/A2020/INF3410/INF3410/TP1/test.jpg");
         
         	DataOutputStream dOut = new DataOutputStream(socket.getOutputStream());
         	
@@ -64,6 +65,17 @@ public class Client {
         	dOut.write(image);
         	
         	// should now wait for image to return in byte[]
+        	
+        	DataInputStream dIn = new DataInputStream(socket.getInputStream());
+			
+			int length = dIn.readInt();
+			if (length > 0) {
+				byte[] message = new byte[length];
+				dIn.readFully(message, 0, message.length);
+				
+				byteToJpeg(message, "/Users/louispopovic/Documents/Poly/A2020/INF3410/INF3410/TP1/ProcessedTest.jpg");
+				
+			}
         	
         	// convert byte[] to jpeg
         	
