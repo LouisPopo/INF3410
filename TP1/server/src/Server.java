@@ -1,4 +1,5 @@
 import java.awt.image.BufferedImage;
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -51,21 +52,23 @@ public class Server {
             System.out.println("Connected: " + socket);
             
             try {
-				BufferedImage img = ImageIO.read(ImageIO.createImageInputStream(this.socket.getInputStream()));
+				DataInputStream dIn = new DataInputStream(this.socket.getInputStream());
 				
-				System.out.println("Received image");
+				int length = dIn.readInt();
+				if (length > 0) {
+					byte[] message = new byte[length];
+					dIn.readFully(message, 0, message.length);
+				}
 				
-				BufferedImage processImg = this.sobel.process(img);
+				// message contient limage en bytearray
 				
-				System.out.println("Processed image");
+				// convert to bufferedImage
 				
-				File outputfile = new File("/Users/louispopovic/Documents/Poly/A2020/INF3410/INF3410/TP1/image.jpg");
-	            ImageIO.write(processImg, "jpg", outputfile);
+				// process image
 				
-				// re-send BufferedImage
+				// re-convert to byte[]
 				
-				//ImageIO.write(img,"JPG",socket.getOutputStream());
-				//System.out.println("Image sended");
+				// send byte[]
 		
 				
 			} catch (IOException e1) {
@@ -74,21 +77,7 @@ public class Server {
 			}
             
             
-            /*try {
-                var in = new Scanner(socket.getInputStream());
-                var out = new PrintWriter(socket.getOutputStream(), true);
-                while (in.hasNextLine()) {
-                    out.println(in.nextLine().toUpperCase());
-                }
-            } catch (Exception e) {
-                System.out.println("Error:" + socket);
-            } finally {
-                try {
-                    socket.close();
-                } catch (IOException e) {
-                }
-                System.out.println("Closed: " + socket);
-            }*/ 
+           
         }
     }
 }
