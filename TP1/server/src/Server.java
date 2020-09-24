@@ -1,5 +1,6 @@
 import java.awt.image.BufferedImage;
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -44,14 +45,11 @@ public class Server {
         
         private Sobel sobel = new Sobel(); 
         
-        public static byte[] jpegToByte(String pathJpeg) throws IOException {
-    		BufferedImage image = null;
-    		byte[] byteImage;
-            image = ImageIO.read(new File(pathJpeg));
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    		ImageIO.write(image, "jpg", baos);
+        public static byte[] bufferedImgToByte(BufferedImage buffImg) throws IOException {
+    		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    		ImageIO.write(buffImg, "jpg", baos);
     		baos.flush();
-    		byteImage = baos.toByteArray();
+    		byte[] byteImage = baos.toByteArray();
     		baos.close();
     		return byteImage;
     	}
@@ -95,8 +93,14 @@ public class Server {
 
 					
 					// re-convert to byte[]
+					byte[] processedByte = this.bufferedImgToByte(processedImg);
 					
 					// send byte[]
+					
+					DataOutputStream dOut = new DataOutputStream(socket.getOutputStream());
+		        	
+		        	dOut.writeInt(processedByte.length);
+		        	dOut.write(processedByte);
 				}
 				
 				
