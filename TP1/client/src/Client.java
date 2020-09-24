@@ -32,11 +32,14 @@ public class Client {
 		return byteImage;
 	}
 	
-	public static BufferedImage byteToBufferedImg(byte[] inputByteArray) {
+	public static void byteToJpeg(byte[] inputByteArray, String path) {
 		
     	try	{
     		InputStream in = new ByteArrayInputStream(inputByteArray);
-    		return ImageIO.read(in);
+    		BufferedImage image;
+    		image = ImageIO.read(in);
+    		File outputImage = new File(path);
+    		ImageIO.write(image,"jpg",outputImage);
     		
     	}       	
     	catch(IOException e) {
