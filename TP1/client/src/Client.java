@@ -2,6 +2,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.net.Socket;
 import java.util.Scanner;
 
@@ -13,6 +15,21 @@ import java.awt.Robot;
 import java.awt.image.BufferedImage;
 
 public class Client {
+	
+	public static byte[] jpegToByte(String pathJpeg) throws IOException {
+		BufferedImage image = null;
+		byte[] byteImage;
+        image = ImageIO.read(new File(pathJpeg));
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		ImageIO.write(image, "jpg", baos);
+		baos.flush();
+		byteImage = baos.toByteArray();
+		baos.close();
+		return byteImage;
+	}
+	
+	
+	
     public static void main(String[] args) throws Exception {
         
     	Image newimg;
@@ -22,24 +39,18 @@ public class Client {
         try (var socket = new Socket("localhost", 59898)) {
             System.out.println("Reading image");
             
-            Robot bot;
-            bot = new Robot();
-            bimg = bot.createScreenCapture(new Rectangle(0, 0, 500, 500));
+//            Robot bot;
+//            bot = new Robot();
+//            bimg = bot.createScreenCapture(new Rectangle(0, 0, 500, 500));
+//            
             
-            //File initfile = new File("/Users/louispopovic/Documents/Poly/A2020/INF3410/INF3410/mi.jpg");
-            //ImageIO.write(bimg, "jpg", initfile);
+            BufferedImage image = null;
+            image = ImageIO.read(new File("C:\\Users\\thier\\Documents\\!Réseaux\\Labo\\INF3410\\TP1\\test.jpg"));
             
-            /*final float FACTOR  = 4f;
-            BufferedImage img = ImageIO.read(new File("/Users/louispopovic/Documents/Poly/A2020/INF3410/INF3410/TP1/client/mi.png"));
-            int scaleX = (int) (img.getWidth() * FACTOR);
-            int scaleY = (int) (img.getHeight() * FACTOR);
-            Image image = img.getScaledInstance(scaleX, scaleY, Image.SCALE_SMOOTH);
-            BufferedImage buffered = new BufferedImage(scaleX, scaleY, 0);
-            buffered.getGraphics().drawImage(image, 0, 0 , null);*/
             
             System.out.println("created image");
             
-            ImageIO.write(bimg,"JPG",socket.getOutputStream());
+            ImageIO.write(image,"JPG",socket.getOutputStream());
             socket.close();
             
             // wait for answer

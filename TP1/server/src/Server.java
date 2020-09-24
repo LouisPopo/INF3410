@@ -59,7 +59,7 @@ public class Server {
 				
 				System.out.println("Processed image");
 				
-				File outputfile = new File("/Users/louispopovic/Documents/Poly/A2020/INF3410/INF3410/TP1/image.jpg");
+				File outputfile = new File("C:\\Users\\thier\\Documents\\!Réseaux\\Labo\\INF3410\\TP1\\image.jpg");
 	            ImageIO.write(processImg, "jpg", outputfile);
 				
 				// re-send BufferedImage
