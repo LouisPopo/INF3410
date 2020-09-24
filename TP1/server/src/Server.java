@@ -1,5 +1,6 @@
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,6 +43,18 @@ public class Server {
         
         private Sobel sobel = new Sobel(); 
         
+        public static byte[] jpegToByte(String pathJpeg) throws IOException {
+    		BufferedImage image = null;
+    		byte[] byteImage;
+            image = ImageIO.read(new File(pathJpeg));
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    		ImageIO.write(image, "jpg", baos);
+    		baos.flush();
+    		byteImage = baos.toByteArray();
+    		baos.close();
+    		return byteImage;
+    	}
+        
         public static BufferedImage byteToBufferedImg(byte[] inputByteArray) {
 			
         	try	{
@@ -52,7 +65,6 @@ public class Server {
         	catch(IOException e) {
         		throw new RuntimeException("Image conversion failed");
         	}        	
-        	
         }
         
         

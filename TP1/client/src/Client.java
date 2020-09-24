@@ -1,5 +1,6 @@
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.ByteArrayInputStream;
@@ -27,6 +28,18 @@ public class Client {
 		baos.close();
 		return byteImage;
 	}
+	
+	public static BufferedImage byteToBufferedImg(byte[] inputByteArray) {
+		
+    	try	{
+    		InputStream in = new ByteArrayInputStream(inputByteArray);
+    		return ImageIO.read(in);
+    		
+    	}       	
+    	catch(IOException e) {
+    		throw new RuntimeException("Image conversion failed");
+    	}        	
+    }
 	
 	
 	
