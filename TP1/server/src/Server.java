@@ -75,6 +75,7 @@ public class Server {
 				System.out.println("Processed image");
 				
 				File outputfile = new File("C:\\Users\\Michael\\Desktop\\Reseaux\\INF3410\\TP1\\img.jpg");
+
 	            ImageIO.write(processImg, "jpg", outputfile);
 				
 				// re-send BufferedImage
