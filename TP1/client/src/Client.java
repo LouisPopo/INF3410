@@ -22,64 +22,61 @@ import java.awt.image.BufferedImage;
 public class Client {
 	
 	public static byte[] jpegToByte(String pathJpeg) throws IOException {
-		BufferedImage image = null;
-		byte[] byteImage;
-        image = ImageIO.read(new File(pathJpeg));
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		
+		BufferedImage image = ImageIO.read(new File(pathJpeg));
+		
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		ImageIO.write(image, "jpg", baos);
 		baos.flush();
-		byteImage = baos.toByteArray();
+		byte[] byteImage = baos.toByteArray();
 		baos.close();
+		
 		return byteImage;
+		
 	}
 	
-	public static void byteToJpeg(byte[] inputByteArray, String path) {
+	public static void byteToJpeg(byte[] inputByteArray, String outputPath) throws IOException {
 		
-    	try	{
-    		InputStream in = new ByteArrayInputStream(inputByteArray);
-    		BufferedImage image;
-    		image = ImageIO.read(in);
-    		File outputImage = new File(path);
-    		ImageIO.write(image,"jpg",outputImage);
-    		
-    	}       	
-    	catch(IOException e) {
-    		throw new RuntimeException("Image conversion failed");
-    	}        	
+		InputStream in = new ByteArrayInputStream(inputByteArray);
+		BufferedImage image = ImageIO.read(in);
+		File outputImage = new File(outputPath);
+		ImageIO.write(image,"jpg",outputImage);
+		        	
     }
 	
+	public static void sendByteArray(byte[] byteArray, DataOutputStream dOut) throws IOException {
+		
+		dOut.writeInt(byteArray.length);
+		dOut.write(byteArray);
+		
+	}
 	
-
+	public static byte[] receiveByteArray(DataInputStream dIn) throws IOException {
+		
+		int length = dIn.readInt();
+		byte[] message = new byte[length];
+		dIn.readFully(message, 0, message.length);
+		
+		return message;
+	}
+	
     public static void main(String[] args) throws Exception {
         
     	
         try (var socket = new Socket("localhost", 59898)) {
             
-
-        	// get image in byte 
-        	byte[] image = jpegToByte("/Users/louispopovic/Documents/Poly/A2020/INF3410/INF3410/TP1/test.jpg");
+        	byte[] image = jpegToByte("/Users/louispopovic/Documents/Poly/A2020/INF3410/pre-process.jpg");
         
         	DataOutputStream dOut = new DataOutputStream(socket.getOutputStream());
+        	sendByteArray(image, dOut);
         	
-        	dOut.writeInt(image.length);
-        	dOut.write(image);
-        	
-        	// should now wait for image to return in byte[]
+        	// should now wait to receive processed image as a byte[]
         	
         	DataInputStream dIn = new DataInputStream(socket.getInputStream());
+			byte[] processedImage = receiveByteArray(dIn);
 			
-			int length = dIn.readInt();
-			if (length > 0) {
-				byte[] message = new byte[length];
-				dIn.readFully(message, 0, message.length);
-				
-				byteToJpeg(message, "/Users/louispopovic/Documents/Poly/A2020/INF3410/INF3410/TP1/ProcessedTest.jpg");
-				
-			}
+			byteToJpeg(processedImage, "/Users/louispopovic/Documents/Poly/A2020/INF3410/post-process.jpg");
         	
-        	// convert byte[] to jpeg
-        	
-
         }
     }
 }
