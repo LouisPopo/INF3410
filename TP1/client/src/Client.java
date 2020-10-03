@@ -9,7 +9,9 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.net.InetAddress;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.Scanner;
 
 import javax.imageio.ImageIO;
@@ -60,10 +62,38 @@ public class Client {
 		return message;
 	}
 	
+	public static boolean validateIpAddr(final String ip) {
+	    String PATTERN = "^((0|1\\d?\\d?|2[0-4]?\\d?|25[0-5]?|[3-9]\\d?)\\.){3}(0|1\\d?\\d?|2[0-4]?\\d?|25[0-5]?|[3-9]\\d?)$";
+
+	    return ip.matches(PATTERN);
+	}
+	
+	public static String askIpAddress(Scanner scanner) throws UnknownHostException {
+		String ipAddrString = "";
+    	do {
+    		System.out.println("Enter ip address: ");
+    		ipAddrString = scanner.nextLine();
+    	} while(!validateIpAddr(ipAddrString));
+		return ipAddrString;
+	}
+	
+	public static int askPortNumber(Scanner scanner) {
+		int portNb = 0;
+    	do {
+    		System.out.println("Enter port number: ");
+    		portNb = Integer.parseInt(scanner.nextLine());
+    	} while(portNb < 5000 || portNb > 5050);
+    	return portNb;
+	}
+	
     public static void main(String[] args) throws Exception {
         
+    	Scanner scanner = new Scanner(System.in);
     	
-        try (var socket = new Socket("localhost", 59898)) {
+    	String ipAddr = askIpAddress(scanner);
+    	int portNb = askPortNumber(scanner);
+    	
+        try (var socket = new Socket(ipAddr, portNb)) {
             
         	byte[] image = jpegToByte("/Users/louispopovic/Documents/Poly/A2020/INF3410/pre-process.jpg");
         
