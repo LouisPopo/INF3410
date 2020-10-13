@@ -1,4 +1,5 @@
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -8,7 +9,9 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.net.InetAddress;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.Scanner;
 
 import javax.imageio.ImageIO;
@@ -20,54 +23,90 @@ import java.awt.image.BufferedImage;
 
 public class Client {
 	
-	public byte[] jpegToByte(String pathJpeg) throws IOException {
-		BufferedImage image = null;
-		byte[] byteImage;
-        image = ImageIO.read(new File(pathJpeg));
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+	public static byte[] jpegToByte(String pathJpeg) throws IOException {
+		
+		BufferedImage image = ImageIO.read(new File(pathJpeg));
+		
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		ImageIO.write(image, "jpg", baos);
 		baos.flush();
-		byteImage = baos.toByteArray();
+		byte[] byteImage = baos.toByteArray();
 		baos.close();
+		
 		return byteImage;
+		
 	}
 	
-	public static void byteToJpeg(byte[] inputByteArray, String path) {
+	public static void byteToJpeg(byte[] inputByteArray, String outputPath) throws IOException {
 		
-    	try	{
-    		InputStream in = new ByteArrayInputStream(inputByteArray);
-    		BufferedImage image;
-    		image = ImageIO.read(in);
-    		File outputImage = new File(path);
-    		ImageIO.write(image,"jpg",outputImage);
-    		
-    	}       	
-    	catch(IOException e) {
-    		throw new RuntimeException("Image conversion failed");
-    	}        	
+		InputStream in = new ByteArrayInputStream(inputByteArray);
+		BufferedImage image = ImageIO.read(in);
+		File outputImage = new File(outputPath);
+		ImageIO.write(image,"jpg",outputImage);
+		        	
     }
 	
+	public static void sendByteArray(byte[] byteArray, DataOutputStream dOut) throws IOException {
+		
+		dOut.writeInt(byteArray.length);
+		dOut.write(byteArray);
+		
+	}
 	
+	public static byte[] receiveByteArray(DataInputStream dIn) throws IOException {
+		
+		int length = dIn.readInt();
+		byte[] message = new byte[length];
+		dIn.readFully(message, 0, message.length);
+		
+		return message;
+	}
+	
+	public static boolean validateIpAddr(final String ip) {
+	    String PATTERN = "^((0|1\\d?\\d?|2[0-4]?\\d?|25[0-5]?|[3-9]\\d?)\\.){3}(0|1\\d?\\d?|2[0-4]?\\d?|25[0-5]?|[3-9]\\d?)$";
 
-    public void main(String[] args) throws Exception {
+	    return ip.matches(PATTERN);
+	}
+	
+	public static String askIpAddress(Scanner scanner) throws UnknownHostException {
+		String ipAddrString = "";
+    	do {
+    		System.out.println("Enter ip address: ");
+    		ipAddrString = scanner.nextLine();
+    	} while(!validateIpAddr(ipAddrString));
+		return ipAddrString;
+	}
+	
+	public static int askPortNumber(Scanner scanner) {
+		int portNb = 0;
+    	do {
+    		System.out.println("Enter port number: ");
+    		portNb = Integer.parseInt(scanner.nextLine());
+    	} while(portNb < 5000 || portNb > 5050);
+    	return portNb;
+	}
+	
+    public static void main(String[] args) throws Exception {
         
+    	Scanner scanner = new Scanner(System.in);
     	
-        try (var socket = new Socket("localhost", 59898)) {
+    	String ipAddr = askIpAddress(scanner);
+    	int portNb = askPortNumber(scanner);
+    	
+        try (var socket = new Socket(ipAddr, portNb)) {
             
-
-        	// get image in byte 
-        	byte[] image = this.jpegToByte("/Users/louispopovic/Documents/Poly/A2020/INF3410/INF3410/TP1/test.jpg");
+        	byte[] image = jpegToByte("/Users/louispopovic/Documents/Poly/A2020/INF3410/pre-process.jpg");
         
         	DataOutputStream dOut = new DataOutputStream(socket.getOutputStream());
+        	sendByteArray(image, dOut);
         	
-        	dOut.writeInt(image.length);
-        	dOut.write(image);
+        	// should now wait to receive processed image as a byte[]
         	
-        	// should now wait for image to return in byte[]
+        	DataInputStream dIn = new DataInputStream(socket.getInputStream());
+			byte[] processedImage = receiveByteArray(dIn);
+			
+			byteToJpeg(processedImage, "/Users/louispopovic/Documents/Poly/A2020/INF3410/post-process.jpg");
         	
-        	// convert byte[] to jpeg
-        	
-
         }
     }
 }
