@@ -101,12 +101,7 @@ public class Server {
 		        	
 		        	dOut.writeInt(processedByte.length);
 		        	dOut.write(processedByte);
-				}
-				
-				
-				
-				
-		
+				}		
 				
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
