@@ -137,22 +137,6 @@ public class Server {
 				e1.printStackTrace();
 			}
             
-            
-              	DataInputStream dIn = new DataInputStream(this.socket.getInputStream());
-    			byte[] preProcessedImgByte = receiveByteArray(dIn);
-                
-                BufferedImage preProcessedBuffImg = this.byteToBufferedImg(preProcessedImgByte);
-                BufferedImage processedImg = Sobel.process(preProcessedBuffImg);
-                
-                byte[] processedImgByte = this.bufferedImgToByte(processedImg);
-                
-                DataOutputStream dOut = new DataOutputStream(socket.getOutputStream());
-            	this.sendByteArray(processedImgByte, dOut);
-            	
-            } catch (Exception e) {
-            	
-            	System.out.println("Could not process image");
-            	
-            }
         }
     }
+}
