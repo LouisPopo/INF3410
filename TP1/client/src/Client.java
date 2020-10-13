@@ -86,12 +86,28 @@ public class Client {
     	return portNb;
 	}
 	
+	public static String askUsername(Scanner scanner) {
+		String usernameString = "";
+    	System.out.println("Enter username: ");
+    	usernameString = scanner.nextLine();
+		return usernameString;
+	}
+	
+	public static String askPassword(Scanner scanner) {
+		String passwordString = "";
+    	System.out.println("Enter password: ");
+    	passwordString = scanner.nextLine();
+		return passwordString;
+	}
+	
     public static void main(String[] args) throws Exception {
         
     	Scanner scanner = new Scanner(System.in);
     	
     	String ipAddr = askIpAddress(scanner);
     	int portNb = askPortNumber(scanner);
+    	String username = askUsername(scanner);
+    	String password = askPassword(scanner);
     	
         try (var socket = new Socket(ipAddr, portNb)) {
             
