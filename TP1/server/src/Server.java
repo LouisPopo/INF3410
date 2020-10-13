@@ -106,22 +106,37 @@ public class Server {
         public void run(){
             System.out.println("Connected: " + socket);
             try {
-            	DataInputStream dIn = new DataInputStream(this.socket.getInputStream());
-    			byte[] preProcessedImgByte = receiveByteArray(dIn);
-                
-                BufferedImage preProcessedBuffImg = this.byteToBufferedImg(preProcessedImgByte);
-                BufferedImage processedImg = Sobel.process(preProcessedBuffImg);
-                
-                byte[] processedImgByte = this.bufferedImgToByte(processedImg);
-                
-                DataOutputStream dOut = new DataOutputStream(socket.getOutputStream());
-            	this.sendByteArray(processedImgByte, dOut);
-            	
-            } catch (Exception e) {
-            	
-            	System.out.println("Could not process image");
-            	
-            }
+				DataInputStream dIn = new DataInputStream(this.socket.getInputStream());
+				
+				int length = dIn.readInt();
+				if (length > 0) {
+					byte[] message = new byte[length];
+					dIn.readFully(message, 0, message.length);
+					
+					BufferedImage buffImg = this.byteToBufferedImg(message);
+					
+					// convert to bufferedImage
+					
+					// process image
+					BufferedImage processedImg = this.sobel.process(buffImg);
+
+					
+					// re-convert to byte[]
+					byte[] processedByte = this.bufferedImgToByte(processedImg);
+					
+					// send byte[]
+					
+					DataOutputStream dOut = new DataOutputStream(socket.getOutputStream());
+		        	
+		        	dOut.writeInt(processedByte.length);
+		        	dOut.write(processedByte);
+				}		
+				
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+            
         }
     }
 }
