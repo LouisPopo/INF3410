@@ -13,7 +13,6 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Scanner;
-
 import javax.imageio.ImageIO;
 
 import java.awt.Image;
@@ -109,19 +108,26 @@ public class Client {
     	String username = askUsername(scanner);
     	String password = askPassword(scanner);
     	
+    	
         try (var socket = new Socket(ipAddr, portNb)) {
-            
-        	byte[] image = jpegToByte("/Users/louispopovic/Documents/Poly/A2020/INF3410/pre-process.jpg");
-        
+        	
         	DataOutputStream dOut = new DataOutputStream(socket.getOutputStream());
+        	DataInputStream dIn = new DataInputStream(socket.getInputStream());
+        	
+        	dOut.writeUTF(username);
+        	dOut.writeUTF(password);
+            
+        	byte[] image = jpegToByte("C:\\Users\\thier\\Documents\\!Réseaux\\Labo\\INF3410\\init.jpg");
+        
+        	
         	sendByteArray(image, dOut);
         	
         	// should now wait to receive processed image as a byte[]
         	
-        	DataInputStream dIn = new DataInputStream(socket.getInputStream());
+        	
 			byte[] processedImage = receiveByteArray(dIn);
 			
-			byteToJpeg(processedImage, "/Users/louispopovic/Documents/Poly/A2020/INF3410/post-process.jpg");
+			byteToJpeg(processedImage, "C:\\Users\\thier\\Documents\\!Réseaux\\Labo\\INF3410\\result.jpg");
         	
         }
     }

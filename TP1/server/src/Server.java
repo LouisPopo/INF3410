@@ -1,9 +1,11 @@
 import java.awt.image.BufferedImage;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -13,6 +15,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Scanner;
 import java.util.concurrent.Executors;
+import java.nio.file.Files;
 
 import javax.imageio.ImageIO;
 
@@ -107,34 +110,57 @@ public class Server {
             System.out.println("Connected: " + socket);
             try {
 				DataInputStream dIn = new DataInputStream(this.socket.getInputStream());
+				DataOutputStream dOut = new DataOutputStream(socket.getOutputStream());
+				Boolean connected = false;
 				
-				int length = dIn.readInt();
-				if (length > 0) {
-					byte[] message = new byte[length];
-					dIn.readFully(message, 0, message.length);
+				while(!connected) {
+					String username = dIn.readUTF();
+					String password = dIn.readUTF();
+					System.out.println(username);
+					System.out.println(password);
+					File userList = new File("userList.csv");
+					userList.createNewFile();
+					BufferedReader csvReader = new BufferedReader(new FileReader("userList.csv"));
+					String row;
+					while ((row = csvReader.readLine()) != null) {
+					    String[] data = row.split(",");
+					    //TODO check if user match data[1] if yes compare PW if match break and connected == true
+					}
+					//TODO if no match with username create new entry in csv with user and PW
+					csvReader.close();
 					
-					BufferedImage buffImg = this.byteToBufferedImg(message);
 					
-					// convert to bufferedImage
 					
-					// process image
-					BufferedImage processedImg = this.sobel.process(buffImg);
+					int length = dIn.readInt();
+					if (length > 0) {
+						byte[] message = new byte[length];
+						dIn.readFully(message, 0, message.length);
+					
+						BufferedImage buffImg = this.byteToBufferedImg(message);
+					
+						// convert to bufferedImage
+					
+						// process image
+						BufferedImage processedImg = this.sobel.process(buffImg);
 
 					
-					// re-convert to byte[]
-					byte[] processedByte = this.bufferedImgToByte(processedImg);
+						// re-convert to byte[]
+						byte[] processedByte = this.bufferedImgToByte(processedImg);
 					
-					// send byte[]
+						// send byte[]
 					
-					DataOutputStream dOut = new DataOutputStream(socket.getOutputStream());
+					
 		        	
-		        	dOut.writeInt(processedByte.length);
-		        	dOut.write(processedByte);
+						dOut.writeInt(processedByte.length);
+						dOut.write(processedByte);
+					
+				}
 				}		
 				
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
-				e1.printStackTrace();
+				//e1.printStackTrace();
+				System.out.print("je suis ici");
 			}
             
         }
