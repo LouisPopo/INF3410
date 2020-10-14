@@ -34,6 +34,8 @@ public class Server {
     	do {
     		System.out.println("Enter ip address: ");
     		ipAddrString = scanner.nextLine();
+    		if(!validateIpAddr(ipAddrString))
+    			System.out.println("This IP address is not valid ! Try another one.");
     	} while(!validateIpAddr(ipAddrString));
 		return InetAddress.getByName(ipAddrString);
 	}
@@ -43,6 +45,8 @@ public class Server {
     	do {
     		System.out.println("Enter port number: ");
     		portNb = Integer.parseInt(scanner.nextLine());
+    		if(portNb < 5000 || portNb > 5050)
+    			System.out.println("This port number is not valid ! Try another one.");
     	} while(portNb < 5000 || portNb > 5050);
     	return portNb;
 	}
@@ -56,6 +60,7 @@ public class Server {
     	
     	try (var listener = new ServerSocket(portNb, 50, addr)) {
     		System.out.println("The Sobel server is running...");
+    		System.out.println("Waiting to recieve image to process...");
             var pool = Executors.newFixedThreadPool(20);
             while (true) {
                 pool.execute(new ImageProcesser(listener.accept()));
