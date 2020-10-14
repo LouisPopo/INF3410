@@ -70,7 +70,7 @@ public class Client {
 	public static String askIpAddress(Scanner scanner) throws UnknownHostException {
 		String ipAddrString = "";
     	do {
-    		System.out.println("Enter ip address: ");
+    		System.out.println("Enter ip address:");
     		ipAddrString = scanner.nextLine();
     	} while(!validateIpAddr(ipAddrString));
 		return ipAddrString;
@@ -79,7 +79,7 @@ public class Client {
 	public static int askPortNumber(Scanner scanner) {
 		int portNb = 0;
     	do {
-    		System.out.println("Enter port number: ");
+    		System.out.println("Enter port number:");
     		portNb = Integer.parseInt(scanner.nextLine());
     	} while(portNb < 5000 || portNb > 5050);
     	return portNb;
@@ -87,16 +87,30 @@ public class Client {
 	
 	public static String askUsername(Scanner scanner) {
 		String usernameString = "";
-    	System.out.println("Enter username: ");
+    	System.out.println("Enter username:");
     	usernameString = scanner.nextLine();
 		return usernameString;
 	}
 	
 	public static String askPassword(Scanner scanner) {
 		String passwordString = "";
-    	System.out.println("Enter password: ");
+    	System.out.println("Enter password:");
     	passwordString = scanner.nextLine();
 		return passwordString;
+	}
+	
+	public static String askImageUploadName(Scanner scanner) {
+		String path = "";
+    	System.out.println("Enter the name of the image you wish to upload including the extension:");
+    	path = scanner.nextLine();
+		return path;
+	}
+	
+	public static String askImageSaveName(Scanner scanner) {
+		String path = "";
+    	System.out.println("Enter the name you wish to give the filtered image including the extension:");
+    	path = scanner.nextLine();
+		return path;
 	}
 	
     public static void main(String[] args) throws Exception {
@@ -113,21 +127,48 @@ public class Client {
         	
         	DataOutputStream dOut = new DataOutputStream(socket.getOutputStream());
         	DataInputStream dIn = new DataInputStream(socket.getInputStream());
+        	Boolean connected = false;
         	
         	dOut.writeUTF(username);
         	dOut.writeUTF(password);
+        	
+        	while(!connected) {
+        		String serverAnswer = dIn.readUTF();
+        		if (serverAnswer.equals("Accepted")) {
+        			System.out.println("You are now connected!");
+        			connected = true;
+        		}
+        		if (serverAnswer.equals("Declined")) {
+        			System.out.println("Erreur dans la saisie du mot de passe.");
+        			username = askUsername(scanner);
+        			password = askPassword(scanner);
+        			dOut.writeUTF(username);
+        			dOut.writeUTF(password);
+        		}
+        		if (serverAnswer.equals("NewUserConnected")) {
+        			System.out.println("Your user has been created.");
+        			System.out.println("You are now connected!");
+        			connected = true;
+        		}
+        	}
+        	
+        	String uploadName = askImageUploadName(scanner);
+        	String saveName = askImageSaveName(scanner);
+        	dOut.writeUTF(uploadName);
             
-        	byte[] image = jpegToByte("C:\\Users\\thier\\Documents\\!Réseaux\\Labo\\INF3410\\init.jpg");
-        
+        	byte[] image = jpegToByte(uploadName);
         	
         	sendByteArray(image, dOut);
+        	System.out.println("Image sent to the server...");
         	
         	// should now wait to receive processed image as a byte[]
         	
-        	
 			byte[] processedImage = receiveByteArray(dIn);
 			
-			byteToJpeg(processedImage, "C:\\Users\\thier\\Documents\\!Réseaux\\Labo\\INF3410\\result.jpg");
+			byteToJpeg(processedImage, saveName);
+			String currentDirectory = System.getProperty("user.dir");
+        	System.out.println("Image received from the server. File location : " + currentDirectory + "\\" + saveName);
+
         	
         }
     }
