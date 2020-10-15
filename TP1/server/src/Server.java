@@ -126,8 +126,11 @@ public class Server {
 				while(!connected) {
 					username = dIn.readUTF();
 					String password = dIn.readUTF();
+					
 					File userList = new File("userList.csv");
 					userList.createNewFile();
+					
+					
 					BufferedReader csvReader = new BufferedReader(new FileReader("userList.csv"));
 					String row;
 					Boolean wrongPasswrong = false;
@@ -148,7 +151,7 @@ public class Server {
 					}
 					csvReader.close();
 					if (connected == false && wrongPasswrong == false) {
-						FileWriter csvWriter = new FileWriter("userList.csv");
+						FileWriter csvWriter = new FileWriter("userList.csv", true);
 						csvWriter.append(username);
 						csvWriter.append(",");
 						csvWriter.append(password);

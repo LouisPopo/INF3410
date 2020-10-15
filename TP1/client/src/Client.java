@@ -2,6 +2,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.nio.file.Files;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -10,7 +11,9 @@ import java.io.PrintWriter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketAddress;
 import java.net.UnknownHostException;
 import java.util.Scanner;
 import javax.imageio.ImageIO;
@@ -86,90 +89,121 @@ public class Client {
 	}
 	
 	public static String askUsername(Scanner scanner) {
-		String usernameString = "";
     	System.out.println("Enter username:");
-    	usernameString = scanner.nextLine();
+    	String usernameString = scanner.nextLine();
 		return usernameString;
 	}
 	
 	public static String askPassword(Scanner scanner) {
-		String passwordString = "";
     	System.out.println("Enter password:");
-    	passwordString = scanner.nextLine();
+    	String passwordString = scanner.nextLine();
 		return passwordString;
 	}
 	
 	public static String askImageUploadName(Scanner scanner) {
-		String path = "";
-    	System.out.println("Enter the name of the image you wish to upload including the extension:");
-    	path = scanner.nextLine();
-		return path;
+    	
+    	
+    	String pathString = "";
+    	Boolean fileExists = false;
+    	
+    	while(!fileExists) {
+    		System.out.println("Enter the name of the image you wish to upload including the extension:");
+    		pathString = scanner.nextLine();
+    		File f = new File(pathString);
+    		fileExists = f.exists();
+    		if (!fileExists) {
+    			System.out.println("This file does not exists.");
+    		}
+    	}
+    	
+		return pathString;
 	}
 	
 	public static String askImageSaveName(Scanner scanner) {
-		String path = "";
     	System.out.println("Enter the name you wish to give the filtered image including the extension:");
-    	path = scanner.nextLine();
+    	String path = scanner.nextLine();
 		return path;
+	}
+	
+	public static Socket connectToServer(Scanner scanner) throws UnknownHostException {
+		
+		while (true) {
+			
+        	try {
+        		Socket socket = new Socket();
+    			
+    			String ipAddr = askIpAddress(scanner);
+            	int portNb = askPortNumber(scanner);
+            	
+            	SocketAddress sockAddr = new InetSocketAddress(ipAddr, portNb);
+            	
+            	socket.connect(sockAddr, 2000);
+            	
+            	// if reach here : socket is connected
+            	
+            	return socket;
+        	} catch (Exception e) {
+        		System.out.println("Cant reach IP.Port. Please try again.");
+        	}
+		}
+		
 	}
 	
     public static void main(String[] args) throws Exception {
         
     	Scanner scanner = new Scanner(System.in);
     	
-    	String ipAddr = askIpAddress(scanner);
-    	int portNb = askPortNumber(scanner);
+    	Socket socket = connectToServer(scanner);
+    	
+    	
     	String username = askUsername(scanner);
     	String password = askPassword(scanner);
+    		
+        	
+    	DataOutputStream dOut = new DataOutputStream(socket.getOutputStream());
+    	DataInputStream dIn = new DataInputStream(socket.getInputStream());
+    	Boolean connected = false;
     	
+    	dOut.writeUTF(username);
+    	dOut.writeUTF(password);
     	
-        try (var socket = new Socket(ipAddr, portNb)) {
-        	
-        	DataOutputStream dOut = new DataOutputStream(socket.getOutputStream());
-        	DataInputStream dIn = new DataInputStream(socket.getInputStream());
-        	Boolean connected = false;
-        	
-        	dOut.writeUTF(username);
-        	dOut.writeUTF(password);
-        	
-        	while(!connected) {
-        		String serverAnswer = dIn.readUTF();
-        		if (serverAnswer.equals("Accepted")) {
-        			System.out.println("You are now connected!");
-        			connected = true;
-        		}
-        		if (serverAnswer.equals("Declined")) {
-        			System.out.println("Erreur dans la saisie du mot de passe.");
-        			username = askUsername(scanner);
-        			password = askPassword(scanner);
-        			dOut.writeUTF(username);
-        			dOut.writeUTF(password);
-        		}
-        		if (serverAnswer.equals("NewUserConnected")) {
-        			System.out.println("Your user has been created.");
-        			System.out.println("You are now connected!");
-        			connected = true;
-        		}
-        	}
-        	
-        	String uploadName = askImageUploadName(scanner);
-        	String saveName = askImageSaveName(scanner);
-        	dOut.writeUTF(uploadName);
-            
-        	byte[] image = jpegToByte(uploadName);
-        	
-        	sendByteArray(image, dOut);
-        	System.out.println("Image sent to the server...");
-        	
-        	// should now wait to receive processed image as a byte[]
-        	
-			byte[] processedImage = receiveByteArray(dIn);
-			
-			byteToJpeg(processedImage, saveName);
-			String currentDirectory = System.getProperty("user.dir");
-        	System.out.println("Image received from the server. File location : " + currentDirectory + "\\" + saveName);
+    	while(!connected) {
+    		String serverAnswer = dIn.readUTF();
+    		if (serverAnswer.equals("Accepted")) {
+    			System.out.println("You are now connected!");
+    			connected = true;
+    		}
+    		if (serverAnswer.equals("Declined")) {
+    			System.out.println("Erreur dans la saisie du mot de passe.");
+    			username = askUsername(scanner);
+    			password = askPassword(scanner);
+    			dOut.writeUTF(username);
+    			dOut.writeUTF(password);
+    		}
+    		if (serverAnswer.equals("NewUserConnected")) {
+    			System.out.println("Your user has been created.");
+    			System.out.println("You are now connected!");
+    			connected = true;
+    		}
+    	}
+    	
+    	String uploadName = askImageUploadName(scanner);
+    	String saveName = askImageSaveName(scanner);
+    	dOut.writeUTF(uploadName);
+        
+    	byte[] image = jpegToByte(uploadName);
+    	
+    	sendByteArray(image, dOut);
+    	System.out.println("Image sent to the server...");
+    	
+    	// should now wait to receive processed image as a byte[]
+    	
+		byte[] processedImage = receiveByteArray(dIn);
+		
+		byteToJpeg(processedImage, saveName);
+		String currentDirectory = System.getProperty("user.dir");
+    	System.out.println("Image received from the server. File location : " + currentDirectory + "\\" + saveName);
 
         	
-        }
     }
 }
