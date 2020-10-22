@@ -23,20 +23,37 @@ import java.text.SimpleDateFormat;
 
 import javax.imageio.ImageIO;
 
-
+/** Server Class
+ * Contains the methods to communicate with multiple clients and
+ * implements an application that applies a Sobel filter to images it
+ * receives. It also keeps a log of usernames and their matching passwords
+ * @authors  Michael Chehab, Thierry Beiko, Louis Popovic
+ * @version 1.0
+ */
 public class Server {
 
 
+	/** validateIpAddr method
+	 * Verifies if the IP address sent by the client is a valid IP
+	 * 
+	 * @param String ip 
+	 * @returns boolean (true if valid IP, false if not)
+	 */
 	public static boolean validateIpAddr(final String ip) {
 		String PATTERN = "^((0|1\\d?\\d?|2[0-4]?\\d?|25[0-5]?|[3-9]\\d?)\\.){3}(0|1\\d?\\d?|2[0-4]?\\d?|25[0-5]?|[3-9]\\d?)$";
 
 		return ip.matches(PATTERN);
 	}
 
+	/** askIpAddress method
+	 * Scanner asking the user to send the Ip Address until the valid IP of the host is received
+	 *  
+	 * @return InetAddress This returns the valid address of the machine hosting the server sent by the user
+	 */
 	public static InetAddress askIpAddress(Scanner scanner) throws UnknownHostException {
 		String ipAddrString = "";
 		do {
-			System.out.println("Enter ip address: ");
+			System.out.println("Enter ip address of the machine hosting the server : ");
 			ipAddrString = scanner.nextLine();
 			if(!validateIpAddr(ipAddrString))
 				System.out.println("This IP address is not valid ! Try another one.");
@@ -44,6 +61,11 @@ public class Server {
 		return InetAddress.getByName(ipAddrString);
 	}
 
+	/** askPortNumber method
+	 * Scanner asking user to send a Port Number until a valid portnum is received
+	 *  
+	 * @return int portNb  This returns the valid port number typed in by the user
+	 */
 	public static int askPortNumber(Scanner scanner) {
 		int portNb = 0;
 		do {
@@ -71,7 +93,11 @@ public class Server {
 			}
 		}
 	}
-
+	/** ImageProcesser Class
+	 * Contains the methods allowing to receive, send and modify images sent by
+	 * the client
+	 * 
+	 */
 	private static class ImageProcesser implements Runnable {
 		private Socket socket;
 
@@ -81,6 +107,13 @@ public class Server {
 			this.socket = socket;
 		}
 
+		/** bufferedImgToByte method
+		 * Transforms a BufferedImage object to a byte array
+		 *  
+		 * @param BufferedImage buffImg image to be transformed
+		 * @return byte[] byteImage This is a byte array containing the information
+		 * relative to the image
+		 */
 		public byte[] bufferedImgToByte(BufferedImage buffImg) throws IOException {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			ImageIO.write(buffImg, "jpg", baos);
@@ -90,6 +123,12 @@ public class Server {
 			return byteImage;
 		}
 
+		/** byteToBufferedImg method
+		 * Transforms a byte array to a BufferedImage object
+		 *  
+		 * @param byte[] inputByteArray byte array to be transformed
+		 * @return ImageIO.read(in) This is an image created from a byte input stream
+		 */
 		public BufferedImage byteToBufferedImg(byte[] inputByteArray) throws IOException {
 
 			InputStream in = new ByteArrayInputStream(inputByteArray);
@@ -97,6 +136,15 @@ public class Server {
 
 		}
 
+		/** receiveByteArray method
+		 * This function receives a byte array from a socket as an input stream
+		 * It first reads the size of the stream, and then reads the message contained
+		 * in the stream
+		 *  
+		 * @param DataInputSteam dIn received byte array containing an int giving the length
+		 * of the message and the message to read.
+		 * @return byte[] message  The message contained in the byte array 
+		 */
 		public static byte[] receiveByteArray(DataInputStream dIn) throws IOException {
 
 			int length = dIn.readInt();
@@ -106,7 +154,14 @@ public class Server {
 			return message;
 
 		}
-
+		
+		/** sendByteArray  method
+		 * Sends a byte array and its size as a DataOutputStream 
+		 *  
+		 * @param byte[] byteArray The size of the message and the message as a byte array
+		 * @param DataOutputStream dOut output stream to send to the client
+		 * 
+		 */
 		public void sendByteArray(byte[] byteArray, DataOutputStream dOut) throws IOException {
 
 			dOut.writeInt(byteArray.length);
@@ -114,6 +169,11 @@ public class Server {
 
 		}
 
+		/** run  method
+		 * Runs the server on the host machine in order to connect
+		 * with potential clients.
+		 *  
+		 */
 		@Override
 		public void run(){
 			System.out.println("Connected: " + socket);
