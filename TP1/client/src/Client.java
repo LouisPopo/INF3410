@@ -25,6 +25,12 @@ import java.awt.image.BufferedImage;
 
 public class Client {
 	
+	/** jpegToByte method 
+	 * Loads an image from a path and converts it to a byte array.
+	 * @param pathJpeg : String of the path to the image
+	 * @return byteImage : byteArray containing image data
+	 * @throws IOException
+	 */
 	public static byte[] jpegToByte(String pathJpeg) throws IOException {
 		
 		BufferedImage image = ImageIO.read(new File(pathJpeg));
@@ -39,6 +45,12 @@ public class Client {
 		
 	}
 	
+	/** byteToJpeg method
+	 *  Converts a byte array to an image file and saves it to a specific path 
+	 * @param inputByteArray : byteArray containing the image data
+	 * @param outputPath : String of the path for the saved image
+	 * @throws IOException
+	 */
 	public static void byteToJpeg(byte[] inputByteArray, String outputPath) throws IOException {
 		
 		InputStream in = new ByteArrayInputStream(inputByteArray);
@@ -48,6 +60,12 @@ public class Client {
 		        	
     }
 	
+	/** sendByteArray method
+	 * Sends a byte array to an output stream
+	 * @param byteArray : data to send
+	 * @param dOut : DataOutputStream to write in
+	 * @throws IOException
+	 */
 	public static void sendByteArray(byte[] byteArray, DataOutputStream dOut) throws IOException {
 		
 		dOut.writeInt(byteArray.length);
@@ -55,6 +73,12 @@ public class Client {
 		
 	}
 	
+	/** receiveByteArray method
+	 * Receives a byte array from an input stream
+	 * @param dIn : DataInputStream to read
+	 * @return message : byteArray received 
+	 * @throws IOException
+	 */
 	public static byte[] receiveByteArray(DataInputStream dIn) throws IOException {
 		
 		int length = dIn.readInt();
@@ -64,36 +88,63 @@ public class Client {
 		return message;
 	}
 	
+	/** validateIpAddr method
+	 * Validates the format of an IP address 
+	 * @param ip : String containing the IP address
+	 * @return Boolean of the validation
+	 */
 	public static boolean validateIpAddr(final String ip) {
 	    String PATTERN = "^((0|1\\d?\\d?|2[0-4]?\\d?|25[0-5]?|[3-9]\\d?)\\.){3}(0|1\\d?\\d?|2[0-4]?\\d?|25[0-5]?|[3-9]\\d?)$";
 
 	    return ip.matches(PATTERN);
 	}
 	
+	/** askIpAddress method
+	 *  Asks the user the IP address of the server
+	 * @param scanner : Scanner linked to the system's command
+	 * @return ipAddrString : String of the IP address
+	 * @throws UnknownHostException
+	 */
 	public static String askIpAddress(Scanner scanner) throws UnknownHostException {
 		String ipAddrString = "";
     	do {
-    		System.out.println("Enter ip address:");
+    		System.out.println("Enter ip address of the server:");
     		ipAddrString = scanner.nextLine();
     	} while(!validateIpAddr(ipAddrString));
 		return ipAddrString;
 	}
 	
+	/** askPortNumber method
+	 *  Asks the user the port number of the server
+	 * @param scanner : Scanner linked to the system's command
+	 * @return ipAddrString : int of the port number
+	 * @throws UnknownHostException
+	 */
 	public static int askPortNumber(Scanner scanner) {
 		int portNb = 0;
     	do {
-    		System.out.println("Enter port number:");
+    		System.out.println("Enter port number of the server:");
     		portNb = Integer.parseInt(scanner.nextLine());
     	} while(portNb < 5000 || portNb > 5050);
     	return portNb;
 	}
 	
+	/** askUsername method
+	 * Asks the user his username to log into the server
+	 * @param scanner : Scanner linked to the system's command
+	 * @return usernameString : String of the username
+	 */
 	public static String askUsername(Scanner scanner) {
     	System.out.println("Enter username:");
     	String usernameString = scanner.nextLine();
 		return usernameString;
 	}
 	
+	/** askPassword method
+	 * Asks the user his password to log into the server
+	 * @param scanner : Scanner linked to the system's command
+	 * @return passwordString : String of the password
+	 */
 	public static String askPassword(Scanner scanner) {
     	System.out.println("Enter password:");
     	String passwordString = scanner.nextLine();
