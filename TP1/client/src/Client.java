@@ -22,7 +22,12 @@ import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.Robot;
 import java.awt.image.BufferedImage;
-
+/** Client Class
+ * Contains the methods to communicate with a server
+ * 
+ * @authors  Michael Chehab, Thierry Beiko, Louis Popovic
+ * @version 1.0
+ */
 public class Client {
 	
 	/** jpegToByte method 

@@ -16,6 +16,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.Scanner;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.nio.file.Files;
 import java.text.DateFormat;
@@ -84,10 +85,10 @@ public class Server {
 		InetAddress addr = askIpAddress(scanner);
 		int portNb = askPortNumber(scanner);
 
-		try (var listener = new ServerSocket(portNb, 50, addr)) {
+		try (ServerSocket listener = new ServerSocket(portNb, 50, addr)) {
 			System.out.println("The Sobel server is running...");
 			System.out.println("Waiting for user to connect...");
-			var pool = Executors.newFixedThreadPool(20);
+			ExecutorService pool = Executors.newFixedThreadPool(20);
 			while (true) {
 				pool.execute(new ImageProcesser(listener.accept()));
 			}
